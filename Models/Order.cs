@@ -1,10 +1,13 @@
-﻿namespace DiningHall.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DiningHall.Models;
 
 public class Order : Entity
 {
-    public IList<Food> FoodList { get; set; }
-    public int Priority { get; set; }
+    public int TableId { get; set; }
+    public int WaiterId { get; set; }
+    [Range(1, 3)] public int Priority { get; set; }
     public int MaxWait { get; set; }
-    public bool OrderIsComplete { get; set; }    
-    public Waiter WaiterId { get; set; }
+    public bool OrderIsComplete { get; set; }
+    public IList<int> FoodList { get; set; }
 }

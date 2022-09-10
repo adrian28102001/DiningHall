@@ -2,5 +2,6 @@
 
 public class Table : BaseEntity
 {
-    public Waiter WaiterId { get; set; }
+    public int OrderId { get; set; }
+    public TableStatus TableStatus { get; set; }
 }

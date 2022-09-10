@@ -1,6 +1,6 @@
 ﻿namespace DiningHall.Models;
 
-public enum Status
+public enum TableStatus
 {
     IsAvailable = 1,
     OrderTaken = 2,
