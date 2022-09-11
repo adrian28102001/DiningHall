@@ -7,14 +7,9 @@ namespace DiningHall.Repositories.OrderRepository;
 public class OrderRepository : IOrderRepository
 {
     private readonly IFoodRepository _foodRepository;
-    private IList<Order> Orders { get; set; }
-    private IList<Waiter> Waiters { get; set; }
-
-
-    public OrderRepository(IList<Order> orders, IList<Waiter> waiters, IFoodRepository foodRepository)
+    
+    public OrderRepository(IFoodRepository foodRepository)
     {
-        Orders = orders;
-        Waiters = waiters;
         _foodRepository = foodRepository;
     }
 

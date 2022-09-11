@@ -1,31 +1,23 @@
 ﻿using DiningHall.DiningHall;
 
-namespace DiningHall.BackgroundTasks;
+namespace DiningHall.BackgroundTask;
 
 public class BackgroundTask : BackgroundService
 {
     private readonly ILogger<BackgroundTask> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly IDiningHall _diningHall;
     private Timer timer;
     private int number;
 
 
-    public BackgroundTask(ILogger<BackgroundTask> logger, IDiningHall diningHall,
-        IServiceScopeFactory serviceScopeFactory, Timer timer)
+    public BackgroundTask(ILogger<BackgroundTask> logger,
+        IServiceScopeFactory serviceScopeFactory)
     {
         _logger = logger;
-        _diningHall = diningHall;
         _serviceScopeFactory = serviceScopeFactory;
-        this.timer = timer;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override async Task StartAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using (var scope = _serviceScopeFactory.CreateScope())
         {
@@ -34,7 +26,11 @@ public class BackgroundTask : BackgroundService
             //Do your stuff
         }
 
-        _diningHall.RunRestaurant();
+        await Task.CompletedTask;
+    }
+
+    public async Task StartAsync(CancellationToken stoppingToken)
+    {
         await Task.CompletedTask;
     }
 
@@ -42,5 +38,10 @@ public class BackgroundTask : BackgroundService
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
     }
 }
