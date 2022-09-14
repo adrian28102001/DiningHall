@@ -1,13 +1,17 @@
-﻿using DiningHall.Helpers;
-using DiningHall.Models;
+﻿using DiningHall.Models;
 
 namespace DiningHall.Repositories.FoodRepository;
 
 public class FoodRepository : IFoodRepository
 {
-    private readonly IList<Food> _foods  = new List<Food>();
-    
-    public IList<Food> GenerateFood()
+    private readonly IList<Food> _foods;
+
+    public FoodRepository()
+    {
+        _foods = new List<Food>();
+    }
+
+    public void GenerateFood()
     {
         _foods.Add(new Food
         {
@@ -51,6 +55,7 @@ public class FoodRepository : IFoodRepository
             Name = "Aubergine",
             PreparationTime = 20
         });
+
         _foods.Add(new Food
         {
             Id = 8,
@@ -69,7 +74,6 @@ public class FoodRepository : IFoodRepository
             Name = "Gyros",
             PreparationTime = 15
         });
-
         _foods.Add(new Food
         {
             Id = 11,
@@ -88,25 +92,15 @@ public class FoodRepository : IFoodRepository
             Name = "TobaccoChicken",
             PreparationTime = 30
         });
+    }
 
+    public IList<Food> GetAll()
+    {
         return _foods;
     }
 
-    public Food GetFoodById(int id)
+    public Food? GetById(int id)
     {
-        return _foods.FirstOrDefault(food => food.Id.Equals(id))!;
-    }
-    
-    public IList<int> GenerateOrderFood()
-    {
-        var size = RandomGenerator.NumberGenerator(10);
-        var listOfFood = new List<int>();
-
-        for (var id = 0; id < size; id++)
-        {
-            listOfFood.Add(RandomGenerator.NumberGenerator(13));
-        }
-
-        return listOfFood;
+        return _foods.FirstOrDefault(food => food.Id.Equals(id));
     }
 }

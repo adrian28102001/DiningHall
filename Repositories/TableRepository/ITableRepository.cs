@@ -4,5 +4,9 @@ namespace DiningHall.Repositories.TableRepository;
 
 public interface ITableRepository
 {
-    public IList<Table> GenerateTables();
+    void InsertTable(Table table);
+    void GenerateTables();
+    IList<Table> GetAll();
+    Table? GetById(int id);
+    Table? GetTableByStatus(Status status);
 }

@@ -2,5 +2,6 @@
 
 public interface IDiningHall
 {
-    public void RunRestaurant();
+    void InitializeDiningHall();
+    void MaintainRestaurant(CancellationToken stoppingToken);
 }

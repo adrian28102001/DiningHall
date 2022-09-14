@@ -1,38 +1,39 @@
-﻿using DiningHall.Models;
-using DiningHall.Repositories.FoodRepository;
-using DiningHall.Repositories.TableRepository;
-using DiningHall.Repositories.WaiterRepository;
+﻿using DiningHall.Services.FoodService;
+using DiningHall.Services.OrderService;
+using DiningHall.Services.TableRepository;
+using DiningHall.Services.WaiterService;
 
 namespace DiningHall.DiningHall;
 
 public class DiningHall : IDiningHall
 {
-    private readonly ITableRepository _tableRepository;
-    private readonly IWaiterRepository _waiterRepository;
-    private readonly IFoodRepository _foodRepository;
+    private readonly IOrderService _orderService;
+    private readonly ITableService _tableService;
+    private readonly IFoodService _foodService;
+    private readonly IWaiterService _waiterService;
 
-    private IList<Table> _tables = new List<Table>();
-    private IList<Waiter> _waiters = new List<Waiter>();
-    private IList<Food> _menu = new List<Food>();
-
-
-    public DiningHall(IWaiterRepository waiterRepository, IFoodRepository foodRepository,
-        ITableRepository tableRepository)
+    public DiningHall(IOrderService orderService, ITableService tableService, IFoodService foodService,
+        IWaiterService waiterService)
     {
-        _waiterRepository = waiterRepository;
-        _foodRepository = foodRepository;
-        _tableRepository = tableRepository;
+        _orderService = orderService;
+        _tableService = tableService;
+        _foodService = foodService;
+        _waiterService = waiterService;
     }
 
-    private void InitializeDiningHall()
+    public void InitializeDiningHall()
     {
-        _waiters = _waiterRepository.GenerateWaiters();
-        _tables = _tableRepository.GenerateTables();
-        _menu = _foodRepository.GenerateFood();
+        _foodService.GenerateMenu();
+        _tableService.GenerateTables();
+        _waiterService.GenerateWaiters();
     }
 
-    public void RunRestaurant()
+    public void MaintainRestaurant(CancellationToken stoppingToken)
     {
-        InitializeDiningHall();
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            _orderService.GenerateOrder();
+            _waiterService.AssignTableWaiter();
+        }
     }
 }

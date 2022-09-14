@@ -10,4 +10,5 @@ public class Order : Entity
     public int MaxWait { get; set; }
     public bool OrderIsComplete { get; set; }
     public IList<int> FoodList { get; set; }
+    public Status Status { get; set; } 
 }

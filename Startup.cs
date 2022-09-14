@@ -3,6 +3,10 @@ using DiningHall.Repositories.FoodRepository;
 using DiningHall.Repositories.OrderRepository;
 using DiningHall.Repositories.TableRepository;
 using DiningHall.Repositories.WaiterRepository;
+using DiningHall.Services.FoodService;
+using DiningHall.Services.OrderService;
+using DiningHall.Services.TableRepository;
+using DiningHall.Services.WaiterService;
 
 namespace DiningHall;
 
@@ -14,18 +18,26 @@ public class Startup
     {
         ConfigRoot = configuration;
     }
-    
+
     public void ConfigureServices(IServiceCollection services)
     {
         // Add services to the container.
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
-        services.AddScoped<IWaiterRepository, WaiterRepository>();
-        services.AddScoped<ITableRepository, TableRepository>();
-        services.AddScoped<IOrderRepository, OrderRepository>();
-        services.AddScoped<IFoodRepository, FoodRepository>();
-        services.AddScoped<IDiningHall, DiningHall.DiningHall>();
+        
+        services.AddSingleton<IWaiterRepository, WaiterRepository>();
+        services.AddSingleton<ITableRepository, TableRepository>();
+        services.AddSingleton<IOrderRepository, OrderRepository>();
+        services.AddSingleton<IFoodRepository, FoodRepository>();
+
+        services.AddSingleton<IWaiterService, WaiterService>();
+        services.AddSingleton<ITableService, TableService>();
+        services.AddSingleton<IOrderService, OrderService>();
+        services.AddSingleton<IFoodService, FoodService>();
+
+
+        services.AddSingleton<IDiningHall, DiningHall.DiningHall>();
         services.AddHostedService<BackgroundTask.BackgroundTask>();
     }
 
@@ -38,6 +50,8 @@ public class Startup
             app.UseSwaggerUI();
         }
 
+        app.UseRouting();
+        app.UseEndpoints(endpoints => endpoints.MapControllers());
         app.UseHttpsRedirection();
 
         app.MapControllers();

@@ -1,7 +1,8 @@
 ﻿namespace DiningHall.Models;
 
-public class Settings
+public static class Settings
 {
-    public static readonly int NrOfTables = 10;
-    public static readonly int NrOfWaiters = 4;
+    public const int NrOfTables = 10;
+    public const int NrOfWaiters = 4;
+    public const string KitchenUrl = "https://localhost:7284/order";
 }

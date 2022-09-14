@@ -1,13 +1,13 @@
 ﻿using DiningHall.Models;
 
-namespace DiningHall.Repositories.OrderRepository;
+namespace DiningHall.Services.OrderService;
 
-public interface IOrderRepository
+public interface IOrderService
 {
-    void InsertOrder(Order order);
+    void GenerateOrder();
+    void SendOrder(Order order);
     IList<Order> GetAll();
     Order? GetById(int id);
     Order? GetOrderByStatus(Status status);
-
     Order? GetOrderByTableId(int id);
 }

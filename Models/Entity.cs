@@ -3,5 +3,5 @@
 public class Entity : BaseEntity
 {
     public DateTime CreatedOnUtc { get; set; }
-    public int UpdatedOnUtc { get; set; }
+    public DateTime UpdatedOnUtc { get; set; }
 }

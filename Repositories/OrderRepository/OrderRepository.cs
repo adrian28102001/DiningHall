@@ -1,31 +1,38 @@
-﻿using DiningHall.Helpers;
-using DiningHall.Models;
-using DiningHall.Repositories.FoodRepository;
+﻿using DiningHall.Models;
 
 namespace DiningHall.Repositories.OrderRepository;
 
 public class OrderRepository : IOrderRepository
 {
-    private readonly IFoodRepository _foodRepository;
-    
-    public OrderRepository(IFoodRepository foodRepository)
+    private readonly IList<Order> _orders;
+
+    public OrderRepository()
     {
-        _foodRepository = foodRepository;
+        _orders = new List<Order>();
     }
 
-    public Order GenerateOrder(int table, int waiter)
+    public void InsertOrder(Order order)
     {
-        var foodList = _foodRepository.GenerateOrderFood();
-        return new Order
-        {
-            Id = IdGenerator.GenerateId(),
-            Priority = RandomGenerator.NumberGenerator(3),
-            CreatedOnUtc = DateTime.UtcNow,
-            OrderIsComplete = false,
-            FoodList = foodList,
-            TableId = table,
-            WaiterId = waiter,
-            MaxWait = foodList.CalculateMaximWaitingTime(_foodRepository)
-        };
+        _orders.Add(order);
+    }
+
+    public IList<Order> GetAll()
+    {
+        return _orders;
+    }
+
+    public Order? GetById(int id)
+    {
+        return _orders.FirstOrDefault(order => order.Id.Equals(id));
+    }
+
+    public Order? GetOrderByStatus(Status status)
+    {
+        return _orders.FirstOrDefault(order => order.Status == status);
+    }
+
+    public Order? GetOrderByTableId(int id)
+    {
+        return _orders.FirstOrDefault(order => order.TableId.Equals(id));
     }
 }
