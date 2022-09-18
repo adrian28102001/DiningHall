@@ -2,6 +2,6 @@
 
 public interface IDiningHall
 {
-    void InitializeDiningHall();
-    void MaintainRestaurant(CancellationToken stoppingToken);
+    Task InitializeDiningHallParallelAsync();
+    Task MaintainRestaurant(CancellationToken stoppingToken);
 }

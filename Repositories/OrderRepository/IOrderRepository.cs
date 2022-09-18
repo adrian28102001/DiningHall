@@ -1,4 +1,5 @@
 ﻿using DiningHall.Models;
+using DiningHall.Models.Status;
 
 namespace DiningHall.Repositories.OrderRepository;
 
@@ -6,8 +7,8 @@ public interface IOrderRepository
 {
     void InsertOrder(Order order);
     IList<Order> GetAll();
-    Order? GetById(int id);
-    Order? GetOrderByStatus(Status status);
+    Order? GetById(Task<int> id);
+    Order? GetOrderByStatus(OrderStatus status);
 
-    Order? GetOrderByTableId(int id);
+    Order? GetOrderByTableId(Task<int> id);
 }

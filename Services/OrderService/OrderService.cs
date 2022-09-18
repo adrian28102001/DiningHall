@@ -1,9 +1,9 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using DiningHall.Helpers;
 using DiningHall.Models;
-using DiningHall.Repositories.FoodRepository;
+using DiningHall.Models.Status;
 using DiningHall.Repositories.OrderRepository;
-using DiningHall.Repositories.TableRepository;
 using DiningHall.Services.FoodService;
 using DiningHall.Services.TableRepository;
 using Newtonsoft.Json;
@@ -12,74 +12,84 @@ namespace DiningHall.Services.OrderService;
 
 public class OrderService : IOrderService
 {
-    private readonly ITableRepository _tableRepository;
-    private readonly IFoodRepository _foodRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly ITableService _tableService;
     private readonly IFoodService _foodService;
 
-    public OrderService(ITableRepository tableRepository, IFoodRepository foodRepository,
-        IOrderRepository orderRepository, ITableService tableService, IFoodService foodService)
+    public OrderService(IOrderRepository orderRepository, IFoodService foodService, ITableService tableService)
     {
-        _tableRepository = tableRepository;
-        _foodRepository = foodRepository;
         _orderRepository = orderRepository;
-        _tableService = tableService;
         _foodService = foodService;
+        _tableService = tableService;
     }
 
-    public void GenerateOrder()
+    public async Task GenerateOrder()
     {
-        Console.BackgroundColor = ConsoleColor.Blue;
-        while (true)
+        await Task.Run(() =>
         {
-            var table = _tableRepository.GetTableByStatus(Status.IsAvailable);
-            if (table != null && table.Status == Status.IsAvailable)
+            while (true)
             {
-                var foodList = _foodService.GenerateOrderFood();
-                var order = new Order
-                {
-                    Id = IdGenerator.GenerateId(),
-                    TableId = table.Id,
-                    Priority = RandomGenerator.NumberGenerator(3),
-                    CreatedOnUtc = DateTime.UtcNow,
-                    OrderIsComplete = false,
-                    FoodList = foodList,
-                    MaxWait = foodList.CalculateMaximWaitingTime(_foodRepository)
-                };
+                var table = _tableService.GetTableByStatus(TableStatus.IsAvailable);
 
-                table.Status = Status.ReadyToOrder;
-                table.OrderId = order.Id;
-
-                _orderRepository.InsertOrder(order);
-                Console.WriteLine($"Table {table.Id} has order id {order.Id} and status {order.Status}");
-            }
-            else
-            {
-                Console.BackgroundColor = ConsoleColor.Red;
-                var tableWithSmallestWaitingTime = _tableService.GetTableWithSmallestWaitingTime();
-                if (tableWithSmallestWaitingTime != null)
+                if (table != null)
                 {
-                    var order = GetById(tableWithSmallestWaitingTime.OrderId);
-                    Console.WriteLine($"I am sorry, we have no free tables, we need to wait for next table that is ready in: {order!.MaxWait}");
-                    Thread.Sleep(order.MaxWait * 100);
-                    continue;
+                    var foodList = _foodService.GenerateOrderFood();
+                    var order = new Order
+                    {
+                        Id = IdGenerator.GenerateId(),
+                        TableId = table.Id,
+                        Priority = RandomGenerator.NumberGenerator(3),
+                        CreatedOnUtc = DateTime.UtcNow,
+                        OrderIsComplete = false,
+                        FoodList = foodList,
+                        MaxWait = foodList.CalculateMaximWaitingTime(_foodService),
+                    };
+
+                    _tableService.ChangeTableStatus(table, order.Id, TableStatus.WaitingForWaiter);
+                    _orderRepository.InsertOrder(order);
+                    ConsoleHelper.Print($"A order with id {order.Id.Result} was generated");
+                    SleepGenerator.Sleep(RandomGenerator.NumberGenerator(20, 40));
                 }
-            }
+                else
+                {
+                    var tableWithSmallestWaitingTime = _tableService.GetTableWithSmallestWaitingTime();
+                    if (tableWithSmallestWaitingTime != null)
+                    {
+                        var order = GetById(tableWithSmallestWaitingTime.OrderId);
 
-            break;
-        }
+                        ConsoleHelper.Print($"There are no free tables now, you need to wait {order!.MaxWait}",
+                            ConsoleColor.Red);
+                        SleepGenerator.Sleep(order.MaxWait);
+                        continue;
+                    }
+                }
+
+                break;
+            }
+        });
     }
 
     public async void SendOrder(Order order)
     {
-        var json = JsonConvert.SerializeObject(order);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
+        try
+        {
+            var serializeObject = JsonConvert.SerializeObject(order);
+            var data = new StringContent(serializeObject, Encoding.UTF8, "application/json");
 
-        const string url = Settings.KitchenUrl;
-        using var client = new HttpClient();
+            const string url = Settings.KitchenUrl;
+            using var client = new HttpClient();
 
-        var response = await client.PostAsync(url, data);
+            var response = await client.PostAsync(url, data);
+
+            if (response.StatusCode != HttpStatusCode.Accepted) return;
+            ConsoleHelper.Print($"The order with id {order.Id} was driven in the kitchen", ConsoleColor.DarkYellow);
+            await ChangeOrderStatus(order, OrderStatus.OrderInTheKitchen);
+        }
+        catch (Exception e)
+        {
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Failed to send order {order.Id}");
+        }
     }
 
     public IList<Order> GetAll()
@@ -87,18 +97,36 @@ public class OrderService : IOrderService
         return _orderRepository.GetAll();
     }
 
-    public Order? GetById(int id)
+    public Order? GetById(Task<int> id)
     {
         return _orderRepository.GetById(id);
     }
 
-    public Order? GetOrderByStatus(Status status)
+    public Order? GetOrderByStatus(OrderStatus status)
     {
         return _orderRepository.GetOrderByStatus(status);
     }
 
-    public Order? GetOrderByTableId(int id)
+    public Order? GetOrderByTableId(Task<int> id)
     {
         return _orderRepository.GetOrderByTableId(id);
+    }
+
+    public Task ChangeOrderDetails(Order order, Task<int> waiterId, OrderStatus status)
+    {
+        order.WaiterId = waiterId;
+        order.OrderStatus = status;
+        return Task.CompletedTask;
+    }
+
+    public Task ChangeOrderStatus(Order order, OrderStatus status)
+    {
+        order.OrderStatus = status;
+        return Task.CompletedTask;
+    }
+
+    public void AssignOrderWaiter(Order order, Task<int> waiterId)
+    {
+        order.WaiterId = waiterId;
     }
 }

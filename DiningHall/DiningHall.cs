@@ -7,10 +7,10 @@ namespace DiningHall.DiningHall;
 
 public class DiningHall : IDiningHall
 {
-    private readonly IOrderService _orderService;
+    private static IOrderService _orderService;
     private readonly ITableService _tableService;
     private readonly IFoodService _foodService;
-    private readonly IWaiterService _waiterService;
+    private static IWaiterService _waiterService;
 
     public DiningHall(IOrderService orderService, ITableService tableService, IFoodService foodService,
         IWaiterService waiterService)
@@ -21,19 +21,27 @@ public class DiningHall : IDiningHall
         _waiterService = waiterService;
     }
 
-    public void InitializeDiningHall()
+    public async Task InitializeDiningHallParallelAsync()
     {
-        _foodService.GenerateMenu();
-        _tableService.GenerateTables();
-        _waiterService.GenerateWaiters();
+        // var watch = System.Diagnostics.Stopwatch.StartNew();
+        var taskList = new List<Task>()
+        {
+            Task.Run(() => _foodService.GenerateMenu()),
+            Task.Run(() => _waiterService.GenerateWaiters()),
+            Task.Run(() => _tableService.GenerateTables())
+        };
+
+        await Task.WhenAll(taskList);
     }
 
-    public void MaintainRestaurant(CancellationToken stoppingToken)
+    public Task MaintainRestaurant(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
             _orderService.GenerateOrder();
-            _waiterService.AssignTableWaiter();
+            _waiterService.ServeTable();
         }
+
+        return Task.CompletedTask;
     }
 }

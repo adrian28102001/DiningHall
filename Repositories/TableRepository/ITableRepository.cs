@@ -1,12 +1,13 @@
 ﻿using DiningHall.Models;
+using DiningHall.Models.Status;
 
 namespace DiningHall.Repositories.TableRepository;
 
 public interface ITableRepository
 {
     void InsertTable(Table table);
-    void GenerateTables();
+    Task GenerateTables();
     IList<Table> GetAll();
-    Table? GetById(int id);
-    Table? GetTableByStatus(Status status);
+    Table? GetById(Task<int> id);
+    Table? GetTableByStatus(TableStatus status);
 }

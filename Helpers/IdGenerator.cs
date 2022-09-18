@@ -2,9 +2,10 @@
 
 public static class IdGenerator
 {
-    private static int Id { get; set; } = 1;
-    public static int GenerateId()
+    private static int Id { get; set; }
+
+    public static async Task<int> GenerateId()
     {
-        return Id++;
+        return await Task.FromResult(Id += 1);
     }
 }

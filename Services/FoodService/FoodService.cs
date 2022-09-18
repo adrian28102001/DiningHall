@@ -36,8 +36,8 @@ public class FoodService : IFoodService
         return _foodRepository.GetById(id);
     }
 
-    public void GenerateMenu()
+    public Task GenerateMenu()
     {
-        _foodRepository.GenerateFood();
+        return _foodRepository.GenerateMenu();
     }
 }

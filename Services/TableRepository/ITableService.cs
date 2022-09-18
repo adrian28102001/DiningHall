@@ -1,13 +1,15 @@
 ﻿using DiningHall.Models;
+using DiningHall.Models.Status;
 
 namespace DiningHall.Services.TableRepository;
 
 public interface ITableService
 {
     IList<Table> GetAll();
-    Table? GetById(int id);
-    Table? GetTableByStatus(Status status);
+    Table? GetById(Task<int> id);
+    Table? GetTableByStatus(TableStatus status);
     Table? GetTableWithSmallestWaitingTime();
-    void AssignTableWaiter();
-    void GenerateTables();
+    Task GenerateTables();
+    void ChangeTableStatus(Table table, Task<int> orderId, TableStatus status);
+    Task ChangeTableStatus(Table table, TableStatus status);
 }

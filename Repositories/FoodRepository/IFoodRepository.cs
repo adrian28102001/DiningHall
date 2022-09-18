@@ -4,7 +4,7 @@ namespace DiningHall.Repositories.FoodRepository;
 
 public interface IFoodRepository
 {
-    void GenerateFood();
+    Task GenerateMenu();
     public IList<Food> GetAll();
     public Food? GetById(int id);
 }

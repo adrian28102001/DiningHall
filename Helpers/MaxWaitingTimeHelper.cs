@@ -1,21 +1,12 @@
-﻿using DiningHall.Repositories.FoodRepository;
+﻿using DiningHall.Services.FoodService;
 
 namespace DiningHall.Helpers;
 
 public static class MaxWaitingTimeHelper
 {
-    public static int CalculateMaximWaitingTime(this IEnumerable<int> foodList, IFoodRepository repository)
+    public static int CalculateMaximWaitingTime(this IEnumerable<int> foodList, IFoodService repository)
     {
-        var maxWaitingTime = 0;
-
-        foreach (var foodId in foodList)
-        {
-            var food = repository.GetById(foodId);
-            if (food != null)
-            {
-                maxWaitingTime += food.PreparationTime;
-            }
-        }
+        var maxWaitingTime = foodList.Select(repository.GetById).Where(food => food != null).Sum(food => food!.PreparationTime);
 
         return (int) (maxWaitingTime * 1.3);
     }

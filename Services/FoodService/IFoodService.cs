@@ -8,5 +8,5 @@ public interface IFoodService
      IList<Food> GetAll();
      Food? GetById(int id);
 
-     void GenerateMenu();
+     Task GenerateMenu();
 }
