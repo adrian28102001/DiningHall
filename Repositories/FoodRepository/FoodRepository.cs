@@ -96,13 +96,13 @@ public class FoodRepository : IFoodRepository
     }
 
 
-    public IList<Food> GetAll()
+    public Task<IList<Food>> GetAll()
     {
-        return _foods;
+        return Task.FromResult(_foods);
     }
 
-    public Food? GetById(int id)
+    public Task<Food?> GetById(int id)
     {
-        return _foods.FirstOrDefault(food => food.Id.Equals(id));
+        return Task.FromResult(_foods.FirstOrDefault(food => food.Id.Result.Equals(id)));
     }
 }

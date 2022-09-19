@@ -6,9 +6,9 @@ namespace DiningHall.Repositories.OrderRepository;
 public interface IOrderRepository
 {
     void InsertOrder(Order order);
-    IList<Order> GetAll();
-    Order? GetById(Task<int> id);
-    Order? GetOrderByStatus(OrderStatus status);
+    Task<IList<Order>> GetAll();
+    Task<Order?> GetById(Task<int> id);
+    Task<Order?> GetOrderByStatus(OrderStatus status);
 
-    Order? GetOrderByTableId(Task<int> id);
+    Task<Order?> GetOrderByTableId(Task<int> id);
 }

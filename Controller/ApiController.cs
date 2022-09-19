@@ -28,24 +28,24 @@ public class ApiController : ControllerBase
     }
 
     [HttpGet]
-    public IList<Order> GetOrders()
+    public Task<IList<Order>> GetOrders()
     {
         return _orderRepository.GetAll();
     }
 
     [HttpPost]
-    public void SendOrder([FromBody] Order order)
+    public async Task SendOrder([FromBody] Order order)
     {
         order.OrderStatus = OrderStatus.OrderCooked;
-        var table = _tableRepository.GetById(order.TableId);
+        var table = await _tableRepository.GetById(order.TableId);
         if (table != null)
         {
             table.TableStatus = TableStatus.IsAvailable;
             ConsoleHelper.Print($"I received from the kitchen an order with id {order.Id.Result} for table {order.TableId}");
         }
 
-        var waiter = _waiterRepository.GetById(order.WaiterId);
-        ConsoleHelper.Print($"Dear {waiter.Name}, please come and take the order {order.Id.Result} for table {order.TableId}");
+        var waiter =  await _waiterRepository.GetById(order.WaiterId);
+        ConsoleHelper.Print($"Dear {waiter?.Name}, please come and take the order {order.Id.Result} for table {order.TableId}");
 
         //serve order
         //get rating

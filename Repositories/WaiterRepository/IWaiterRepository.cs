@@ -5,8 +5,8 @@ namespace DiningHall.Repositories.WaiterRepository;
 public interface IWaiterRepository
 {
     void InsertWaiter(Waiter waiter);
-    IList<Waiter> GetAll();
-    Waiter GetById(Task<int> id);
-    Waiter? GetFreeWaiter();
+    Task<IList<Waiter>> GetAll();
+    Task<Waiter?> GetById(Task<int> id);
+    Task<Waiter?> GetFreeWaiter();
     Task GenerateWaiters();
-}
+    }

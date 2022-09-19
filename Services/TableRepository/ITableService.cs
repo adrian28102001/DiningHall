@@ -5,11 +5,10 @@ namespace DiningHall.Services.TableRepository;
 
 public interface ITableService
 {
-    IList<Table> GetAll();
-    Table? GetById(Task<int> id);
-    Table? GetTableByStatus(TableStatus status);
-    Table? GetTableWithSmallestWaitingTime();
+    Task<IList<Table>> GetAll();
+    Task<Table?> GetById(Task<int> id);
+    Task<Table?> GetTableByStatus(TableStatus status);
+    Task<Table?> GetTableWithSmallestWaitingTime();
     Task GenerateTables();
-    void ChangeTableStatus(Table table, Task<int> orderId, TableStatus status);
     Task ChangeTableStatus(Table table, TableStatus status);
 }

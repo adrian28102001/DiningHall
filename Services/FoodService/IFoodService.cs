@@ -4,9 +4,9 @@ namespace DiningHall.Services.FoodService;
 
 public interface IFoodService
 {
-     IList<int> GenerateOrderFood();
-     IList<Food> GetAll();
-     Food? GetById(int id);
+     Task<IList<int>> GenerateOrderFood();
+     Task<IList<Food>> GetAll();
+     Task<Food?> GetById(int id);
 
      Task GenerateMenu();
 }

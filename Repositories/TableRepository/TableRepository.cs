@@ -33,18 +33,18 @@ public class TableRepository : ITableRepository
         _tables.Add(table);
     }
 
-    public IList<Table> GetAll()
+    public Task<IList<Table>> GetAll()
     {
-        return _tables;
+        return Task.FromResult(_tables);
     }
 
-    public Table? GetById(Task<int> id)
+    public Task<Table?> GetById(Task<int> id)
     {
-        return _tables.FirstOrDefault(table => table.Id.Equals(id));
+        return Task.FromResult(_tables.FirstOrDefault(table => table.Id.Equals(id)));
     }
 
-    public Table? GetTableByStatus(TableStatus status)
+    public Task<Table?> GetTableByStatus(TableStatus status)
     {
-        return _tables.FirstOrDefault(table => table.TableStatus == status);
+        return Task.FromResult(_tables.FirstOrDefault(table => table.TableStatus == status));
     }
 }

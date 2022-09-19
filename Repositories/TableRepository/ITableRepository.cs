@@ -7,7 +7,7 @@ public interface ITableRepository
 {
     void InsertTable(Table table);
     Task GenerateTables();
-    IList<Table> GetAll();
-    Table? GetById(Task<int> id);
-    Table? GetTableByStatus(TableStatus status);
+    Task<IList<Table>> GetAll();
+    Task<Table?> GetById(Task<int> id);
+    Task<Table?> GetTableByStatus(TableStatus status);
 }

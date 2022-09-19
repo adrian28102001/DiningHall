@@ -6,11 +6,10 @@ namespace DiningHall.Services.OrderService;
 public interface IOrderService
 {
     Task GenerateOrder();
-    void SendOrder(Order order);
-    IList<Order> GetAll();
-    Order? GetById(Task<int> id);
-    Order? GetOrderByStatus(OrderStatus status);
-    Order? GetOrderByTableId(Task<int> id);
-    void AssignOrderWaiter(Order order, Task<int> waiterId);
+    Task SendOrder(Order order);
+    Task<IList<Order>> GetAll();
+    Task<Order?> GetById(Task<int> id);
+    Task<Order?> GetOrderByStatus(OrderStatus status);
+    Task<Order?> GetOrderByTableId(Task<int> id);
     Task ChangeOrderDetails(Order order, Task<int> waiterId, OrderStatus status);
 }

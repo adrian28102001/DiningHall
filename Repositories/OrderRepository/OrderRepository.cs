@@ -17,23 +17,23 @@ public class OrderRepository : IOrderRepository
         _orders.Add(order);
     }
 
-    public IList<Order> GetAll()
+    public Task<IList<Order>> GetAll()
     {
-        return _orders;
+        return Task.FromResult(_orders);
     }
 
-    public Order? GetById(Task<int> id)
+    public Task<Order?> GetById(Task<int> id)
     {
-        return _orders.FirstOrDefault(order => order.Id.Equals(id));
+        return Task.FromResult(_orders.FirstOrDefault(order => order.Id.Equals(id)));
     }
 
-    public Order? GetOrderByStatus(OrderStatus status)
+    public Task<Order?> GetOrderByStatus(OrderStatus status)
     {
-        return _orders.FirstOrDefault(order => order.OrderStatus == status);
+        return Task.FromResult(_orders.FirstOrDefault(order => order.OrderStatus == status));
     }
 
-    public Order? GetOrderByTableId(Task<int> id)
+    public Task<Order?> GetOrderByTableId(Task<int> id)
     {
-        return _orders.FirstOrDefault(order => order.TableId.Equals(id));
+        return Task.FromResult(_orders.FirstOrDefault(order => order.TableId.Equals(id)));
     }
 }

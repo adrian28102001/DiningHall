@@ -5,6 +5,6 @@ namespace DiningHall.Repositories.FoodRepository;
 public interface IFoodRepository
 {
     Task GenerateMenu();
-    public IList<Food> GetAll();
-    public Food? GetById(int id);
+    public Task<IList<Food>> GetAll();
+    public Task<Food?> GetById(int id);
 }

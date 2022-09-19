@@ -13,7 +13,7 @@ public class FoodService : IFoodService
         _foodRepository = foodRepository;
     }
 
-    public IList<int> GenerateOrderFood()
+    public Task<IList<int>> GenerateOrderFood()
     {
         var size = RandomGenerator.NumberGenerator(10);
         var listOfFood = new List<int>();
@@ -23,15 +23,15 @@ public class FoodService : IFoodService
             listOfFood.Add(RandomGenerator.NumberGenerator(13));
         }
 
-        return listOfFood;
+        return Task.FromResult<IList<int>>(listOfFood);
     }
 
-    public IList<Food> GetAll()
+    public Task<IList<Food>> GetAll()
     {
         return _foodRepository.GetAll();
     }
 
-    public Food? GetById(int id)
+    public Task<Food?> GetById(int id)
     {
         return _foodRepository.GetById(id);
     }

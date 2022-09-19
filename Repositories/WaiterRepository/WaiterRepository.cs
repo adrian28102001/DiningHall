@@ -32,18 +32,18 @@ public class WaiterRepository : IWaiterRepository
         _waiters.Add(waiter);
     }
 
-    public IList<Waiter> GetAll()
+    public Task<IList<Waiter>> GetAll()
     {
-        return _waiters;
+        return Task.FromResult(_waiters);
     }
 
-    public Waiter GetById(Task<int> id)
+    public Task<Waiter?> GetById(Task<int> id)
     {
-        return _waiters.FirstOrDefault(waiter => waiter.Id.Equals(id))!;
+        return Task.FromResult(_waiters.FirstOrDefault(waiter => waiter.Id.Equals(id)));
     }
 
-    public Waiter? GetFreeWaiter()
+    public Task<Waiter?> GetFreeWaiter()
     {
-        return _waiters.FirstOrDefault(waiter => waiter.IsFree);
+        return Task.FromResult(_waiters.FirstOrDefault(waiter => waiter.IsFree));
     }
 }

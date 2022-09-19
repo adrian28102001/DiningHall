@@ -25,51 +25,52 @@ public class OrderService : IOrderService
 
     public async Task GenerateOrder()
     {
-        await Task.Run(() =>
+        while (true)
         {
-            while (true)
+            var table = await _tableService.GetTableByStatus(TableStatus.IsAvailable);
+
+            if (table != null)
             {
-                var table = _tableService.GetTableByStatus(TableStatus.IsAvailable);
-
-                if (table != null)
+                var foodList = await _foodService.GenerateOrderFood();
+                var order = new Order
                 {
-                    var foodList = _foodService.GenerateOrderFood();
-                    var order = new Order
-                    {
-                        Id = IdGenerator.GenerateId(),
-                        TableId = table.Id,
-                        Priority = RandomGenerator.NumberGenerator(3),
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderIsComplete = false,
-                        FoodList = foodList,
-                        MaxWait = foodList.CalculateMaximWaitingTime(_foodService),
-                    };
+                    Id = IdGenerator.GenerateId(),
+                    TableId = table.Id,
+                    Priority = RandomGenerator.NumberGenerator(3),
+                    CreatedOnUtc = DateTime.UtcNow,
+                    OrderIsComplete = false,
+                    FoodList = foodList,
+                    MaxWait = foodList.CalculateMaximWaitingTime(_foodService),
+                };
 
-                    _tableService.ChangeTableStatus(table, order.Id, TableStatus.WaitingForWaiter);
-                    _orderRepository.InsertOrder(order);
-                    ConsoleHelper.Print($"A order with id {order.Id.Result} was generated");
-                    SleepGenerator.Sleep(RandomGenerator.NumberGenerator(20, 40));
-                }
-                else
+                table.OrderId = order.Id;   
+                table.TableStatus = TableStatus.WaitingForWaiter;
+
+                _orderRepository.InsertOrder(order);
+                ConsoleHelper.Print($"A order with id {order.Id.Result} was generated");
+                var randomSleepTime = RandomGenerator.NumberGenerator(20, 40);
+                ConsoleHelper.Print($"Next order will be generated in: {randomSleepTime}");
+                await SleepGenerator.Delay(randomSleepTime);
+            }
+            else
+            {
+                var tableWithSmallestWaitingTime = await _tableService.GetTableWithSmallestWaitingTime();
+                if (tableWithSmallestWaitingTime != null)
                 {
-                    var tableWithSmallestWaitingTime = _tableService.GetTableWithSmallestWaitingTime();
-                    if (tableWithSmallestWaitingTime != null)
+                    var order = await GetById(tableWithSmallestWaitingTime.OrderId);
+                    if (order != null)
                     {
-                        var order = GetById(tableWithSmallestWaitingTime.OrderId);
-
-                        ConsoleHelper.Print($"There are no free tables now, you need to wait {order!.MaxWait}",
-                            ConsoleColor.Red);
-                        SleepGenerator.Sleep(order.MaxWait);
+                        ConsoleHelper.Print($"There are no free tables now, you need to wait {order.MaxWait}");
+                        await SleepGenerator.Delay(order.MaxWait); // sleep
                         continue;
                     }
                 }
-
-                break;
             }
-        });
+            break;
+        }
     }
 
-    public async void SendOrder(Order order)
+    public async Task SendOrder(Order order)
     {
         try
         {
@@ -82,32 +83,31 @@ public class OrderService : IOrderService
             var response = await client.PostAsync(url, data);
 
             if (response.StatusCode != HttpStatusCode.Accepted) return;
-            ConsoleHelper.Print($"The order with id {order.Id} was driven in the kitchen", ConsoleColor.DarkYellow);
+            ConsoleHelper.Print($"The order with id {order.Id} was driven in the kitchen");
             await ChangeOrderStatus(order, OrderStatus.OrderInTheKitchen);
         }
         catch (Exception e)
         {
-            Console.BackgroundColor = ConsoleColor.Red;
             Console.WriteLine($"Failed to send order {order.Id}");
         }
     }
 
-    public IList<Order> GetAll()
+    public Task<IList<Order>> GetAll()
     {
         return _orderRepository.GetAll();
     }
 
-    public Order? GetById(Task<int> id)
+    public Task<Order?> GetById(Task<int> id)
     {
         return _orderRepository.GetById(id);
     }
 
-    public Order? GetOrderByStatus(OrderStatus status)
+    public Task<Order?> GetOrderByStatus(OrderStatus status)
     {
         return _orderRepository.GetOrderByStatus(status);
     }
 
-    public Order? GetOrderByTableId(Task<int> id)
+    public Task<Order?> GetOrderByTableId(Task<int> id)
     {
         return _orderRepository.GetOrderByTableId(id);
     }
@@ -119,14 +119,10 @@ public class OrderService : IOrderService
         return Task.CompletedTask;
     }
 
-    public Task ChangeOrderStatus(Order order, OrderStatus status)
+    private static Task ChangeOrderStatus(Order order, OrderStatus status)
     {
         order.OrderStatus = status;
         return Task.CompletedTask;
     }
-
-    public void AssignOrderWaiter(Order order, Task<int> waiterId)
-    {
-        order.WaiterId = waiterId;
-    }
+    
 }

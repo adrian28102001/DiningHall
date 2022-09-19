@@ -16,37 +16,31 @@ public class TableService : ITableService
         _orderRepository = orderRepository;
     }
 
-    public IList<Table> GetAll()
+    public Task<IList<Table>> GetAll()
     {
         return _tableRepository.GetAll();
     }
 
-    public Table? GetById(Task<int> id)
+    public Task<Table?> GetById(Task<int> id)
     {
         return _tableRepository.GetById(id);
     }
 
-    public Table? GetTableByStatus(TableStatus status)
+    public Task<Table?> GetTableByStatus(TableStatus status)
     {
         return _tableRepository.GetTableByStatus(status);
     }
 
-    public Table? GetTableWithSmallestWaitingTime()
+    public async Task<Table?> GetTableWithSmallestWaitingTime()
     {
-        var orders = _orderRepository.GetAll();
+        var orders = await _orderRepository.GetAll();
         var orderWithMinWaitingTime = orders.MinBy(order => order.MaxWait);
-        return GetById(orderWithMinWaitingTime!.TableId);
+        return await GetById(orderWithMinWaitingTime!.TableId);
     }
 
     public Task GenerateTables()
     {
         return _tableRepository.GenerateTables();
-    }
-
-    public void ChangeTableStatus(Table table, Task<int> orderId, TableStatus status)
-    {
-        table.OrderId = orderId;
-        table.TableStatus = status;
     }
 
     public Task ChangeTableStatus(Table table, TableStatus status)

@@ -29,84 +29,65 @@ public class WaiterService : IWaiterService
         return _waiterRepository.GenerateWaiters();
     }
 
-    public void ChangeWaiterStatus(Waiter waiter, bool isFree)
-    {
-        waiter.IsFree = isFree;
-    }
-
-    public IList<Waiter> GetAll()
+    public Task<IList<Waiter>> GetAll()
     {
         return _waiterRepository.GetAll();
     }
 
-    public Waiter GetById(Task<int> id)
+    public Task<Waiter?> GetById(Task<int> id)
     {
         return _waiterRepository.GetById(id);
     }
 
-    private Waiter? GetFreeWaiter()
+    private Task<Waiter?> GetFreeWaiter()
     {
         return _waiterRepository.GetFreeWaiter();
     }
 
-    private static void RestWaiter(Waiter waiter)
-    {
-        var sleepTime = RandomGenerator.NumberGenerator(100);
-        ConsoleHelper.Print($"I sent the order in the kitchen and I will rest for {sleepTime} seconds",
-            ConsoleColor.DarkYellow);
-        SleepGenerator.Sleep(sleepTime);
-        ConsoleHelper.Print($"Waiter {waiter.Name} is ready for a new order", ConsoleColor.DarkGreen);
-    }
-
-    public void ChangeWaiterDetails(Waiter waiter, Order order, bool isFree)
-    {
-        waiter.Order = order;
-        waiter.IsFree = isFree;
-        waiter.ActiveOrders.Add(order);
-    }
-
     public async Task ServeTable()
     {
-        await Task.Run(() =>
+        while (true)
         {
-            while (true)
+            var waiter = await GetFreeWaiter();
+            var table = await _tableRepository.GetTableByStatus(TableStatus.WaitingForWaiter);
+
+            if (waiter != null && table != null)
             {
-                var waiter = GetFreeWaiter();
-                var table = _tableRepository.GetTableByStatus(TableStatus.WaitingForWaiter);
+                var order = await _orderService.GetOrderByTableId(table.Id);
 
-                if (waiter != null && table != null)
+                if (order != null)
                 {
-                    var order = _orderService.GetOrderByTableId(table.Id);
-
-                    if (order != null)
-                    {
-                        _orderService.AssignOrderWaiter(order, waiter.Id);
-                        ChangeWaiterDetails(waiter, order, false);
-                        ConsoleHelper.Print(
-                            $"I am {waiter.Name} and I drive order {order.Id.Result} in the kitchen");
-                        _orderService.SendOrder(order);
-                        _tableService.ChangeTableStatus(table, TableStatus.WaitingForOrderToBeServed);
-                        RestWaiter(waiter);
-                        ChangeWaiterStatus(waiter, true);
-                    }
+                    order.WaiterId = waiter.Id;
+                    
+                    waiter.Order = order;
+                    waiter.IsFree = false;
+                    waiter.ActiveOrders.Add(order);
+                    
+                    ConsoleHelper.Print($"I am {waiter.Name} and I drive order {order.Id} in the kitchen");
+                    await _orderService.SendOrder(order);
+                    await _tableService.ChangeTableStatus(table, TableStatus.WaitingForOrderToBeServed);
+                    
+                    var sleepTime = RandomGenerator.NumberGenerator(60);
+                    ConsoleHelper.Print($"I sent the order in the kitchen and I will rest for {sleepTime} seconds");
+                    await SleepGenerator.Delay(sleepTime);
+                    ConsoleHelper.Print($"Waiter {waiter.Name} is ready for a new order");
+                    waiter.IsFree = true;
                 }
-                else if (waiter == null)
-                {
-                    Console.BackgroundColor = ConsoleColor.Red;
-                    ConsoleHelper.Print("There are no free waiters now", ConsoleColor.Red);
-                    SleepGenerator.Sleep(RandomGenerator.NumberGenerator(20, 40));
-                    continue;
-                }
-                else if (table == null)
-                {
-                    Console.BackgroundColor = ConsoleColor.Red;
-                    ConsoleHelper.Print("There are no tables that need an waiter now", ConsoleColor.Red);
-                    SleepGenerator.Sleep(RandomGenerator.NumberGenerator(20, 40));
-                    continue;
-                }
-
-                break;
             }
-        });
+            else if (waiter == null)
+            {
+                ConsoleHelper.Print("There are no free waiters now");
+                await SleepGenerator.Delay(RandomGenerator.NumberGenerator(20, 40));
+                continue;
+            }
+            else if (table == null)
+            {
+                ConsoleHelper.Print("There are no tables that need an waiter now");
+                await SleepGenerator.Delay(RandomGenerator.NumberGenerator(20, 40));
+                continue;
+            }
+
+            break;
+        }
     }
 }
