@@ -1,4 +1,5 @@
-﻿using DiningHall.Helpers;
+﻿using System.Collections.Concurrent;
+using DiningHall.Helpers;
 using DiningHall.Models;
 using DiningHall.Models.Status;
 using DiningHall.Repositories.TableRepository;
@@ -29,12 +30,12 @@ public class WaiterService : IWaiterService
         return _waiterRepository.GenerateWaiters();
     }
 
-    public Task<IList<Waiter>> GetAll()
+    public Task<ConcurrentBag<Waiter>> GetAll()
     {
         return _waiterRepository.GetAll();
     }
 
-    public Task<Waiter?> GetById(Task<int> id)
+    public Task<Waiter?> GetById(int id)
     {
         return _waiterRepository.GetById(id);
     }
@@ -58,15 +59,15 @@ public class WaiterService : IWaiterService
                 if (order != null)
                 {
                     order.WaiterId = waiter.Id;
-                    
+
                     waiter.Order = order;
                     waiter.IsFree = false;
                     waiter.ActiveOrders.Add(order);
-                    
+
                     ConsoleHelper.Print($"I am {waiter.Name} and I drive order {order.Id} in the kitchen");
                     await _orderService.SendOrder(order);
-                    await _tableService.ChangeTableStatus(table, TableStatus.WaitingForOrderToBeServed);
-                    
+                    table.TableStatus = TableStatus.WaitingForOrderToBeServed;
+
                     var sleepTime = RandomGenerator.NumberGenerator(60);
                     ConsoleHelper.Print($"I sent the order in the kitchen and I will rest for {sleepTime} seconds");
                     await SleepGenerator.Delay(sleepTime);

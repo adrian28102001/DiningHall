@@ -1,12 +1,13 @@
-﻿using DiningHall.Models;
+﻿using System.Collections.Concurrent;
+using DiningHall.Models;
 
 namespace DiningHall.Repositories.WaiterRepository;
 
 public interface IWaiterRepository
 {
     void InsertWaiter(Waiter waiter);
-    Task<IList<Waiter>> GetAll();
-    Task<Waiter?> GetById(Task<int> id);
+    Task<ConcurrentBag<Waiter>> GetAll();
+    Task<Waiter?> GetById(int id);
     Task<Waiter?> GetFreeWaiter();
     Task GenerateWaiters();
     }

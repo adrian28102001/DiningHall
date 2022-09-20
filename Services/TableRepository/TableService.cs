@@ -1,4 +1,5 @@
-﻿using DiningHall.Models;
+﻿using System.Collections.Concurrent;
+using DiningHall.Models;
 using DiningHall.Models.Status;
 using DiningHall.Repositories.OrderRepository;
 using DiningHall.Repositories.TableRepository;
@@ -16,12 +17,17 @@ public class TableService : ITableService
         _orderRepository = orderRepository;
     }
 
-    public Task<IList<Table>> GetAll()
+    public Task<ConcurrentBag<Table>> GetAll()
     {
         return _tableRepository.GetAll();
     }
 
     public Task<Table?> GetById(Task<int> id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Table?> GetById(int id)
     {
         return _tableRepository.GetById(id);
     }

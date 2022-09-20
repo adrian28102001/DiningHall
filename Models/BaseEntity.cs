@@ -2,5 +2,5 @@
 
 public class BaseEntity
 {
-    public Task<int> Id { get; set; }
+    public int Id { get; set; }
 }

@@ -1,4 +1,6 @@
-﻿namespace DiningHall.Models;
+﻿using System.Collections.Concurrent;
+
+namespace DiningHall.Models;
 
 public class Waiter : BaseEntity
 {
@@ -6,13 +8,13 @@ public class Waiter : BaseEntity
     {
         Name = "";
         Order = new Order();
-        ActiveOrders = new List<Order>();
-        NrOfOrdersCompleted = new List<int>();
+        ActiveOrders = new ConcurrentBag<Order>();
+        NrOfOrdersCompleted = new ConcurrentBag<int>();
     }
 
     public string Name { get; set; }
     public bool IsFree { get; set; }
     public Order Order { get; set; }    
-    public IList<Order> ActiveOrders { get; set; }
-    public IList<int> NrOfOrdersCompleted { get; set; }
+    public ConcurrentBag<Order> ActiveOrders { get; set; }
+    public ConcurrentBag<int> NrOfOrdersCompleted { get; set; }
 }

@@ -1,14 +1,15 @@
-﻿using DiningHall.Models;
+﻿using System.Collections.Concurrent;
+using DiningHall.Models;
 
 namespace DiningHall.Repositories.WaiterRepository;
 
 public class WaiterRepository : IWaiterRepository
 {
-    private readonly IList<Waiter> _waiters;
+    private readonly ConcurrentBag<Waiter> _waiters;
 
     public WaiterRepository()
     {
-        _waiters = new List<Waiter>();
+        _waiters = new ConcurrentBag<Waiter>();
     }
 
     public Task GenerateWaiters()
@@ -18,7 +19,7 @@ public class WaiterRepository : IWaiterRepository
         {
             _waiters.Add(new Waiter
             {
-                Id = Task.FromResult(id),
+                Id = id,
                 Name = $"Waiter {id}",
                 IsFree = true,
             });
@@ -32,12 +33,12 @@ public class WaiterRepository : IWaiterRepository
         _waiters.Add(waiter);
     }
 
-    public Task<IList<Waiter>> GetAll()
+    public Task<ConcurrentBag<Waiter>> GetAll()
     {
         return Task.FromResult(_waiters);
     }
 
-    public Task<Waiter?> GetById(Task<int> id)
+    public Task<Waiter?> GetById(int id)
     {
         return Task.FromResult(_waiters.FirstOrDefault(waiter => waiter.Id.Equals(id)));
     }

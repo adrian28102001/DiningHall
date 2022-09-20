@@ -1,94 +1,95 @@
-﻿using DiningHall.Models;
+﻿using System.Collections.Concurrent;
+using DiningHall.Models;
 
 namespace DiningHall.Repositories.FoodRepository;
 
 public class FoodRepository : IFoodRepository
 {
-    private readonly IList<Food> _foods;
+    private readonly ConcurrentBag<Food> _foods;
 
     public FoodRepository()
     {
-        _foods = new List<Food>();
+        _foods = new ConcurrentBag<Food>();
     }
 
     public Task GenerateMenu()
     {
         _foods.Add(new Food
         {
-            Id = Task.FromResult(1),
+            Id = 1,
             Name = "Pizza",
             PreparationTime = 20
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(2),
+            Id = 2,
             Name = "Salad",
             PreparationTime = 10
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(3),
+            Id = 3,
             Name = " Zeama",
             PreparationTime = 7
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(4),
+            Id = 4,
             Name = "Scallop Sashimi with Meyer Lemon Confit",
             PreparationTime = 32
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(5),
+            Id = 5,
             Name = "Island Duck with Mulberry Mustard",
             PreparationTime = 35
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(6),
+            Id = 6,
             Name = "Waffles",
             PreparationTime = 10
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(7),
+            Id = 7,
             Name = "Aubergine",
             PreparationTime = 20
         });
 
         _foods.Add(new Food
         {
-            Id = Task.FromResult(8),
+            Id = 8,
             Name = "Lasagna",
             PreparationTime = 30
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(9),
+            Id = 9,
             Name = "Burger",
             PreparationTime = 15
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(10),
+            Id = 10,
             Name = "Gyros",
             PreparationTime = 15
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(11),
+            Id = 11,
             Name = "Kebab",
             PreparationTime = 15
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(12),
+            Id = 12,
             Name = "UnagiMaki",
             PreparationTime = 20
         });
         _foods.Add(new Food
         {
-            Id = Task.FromResult(13),
+            Id = 13,
             Name = "TobaccoChicken",
             PreparationTime = 30
         });
@@ -96,13 +97,13 @@ public class FoodRepository : IFoodRepository
     }
 
 
-    public Task<IList<Food>> GetAll()
+    public Task<ConcurrentBag<Food>> GetAll()
     {
         return Task.FromResult(_foods);
     }
 
     public Task<Food?> GetById(int id)
     {
-        return Task.FromResult(_foods.FirstOrDefault(food => food.Id.Result.Equals(id)));
+        return Task.FromResult(_foods.FirstOrDefault(food => food.Id.Equals(id)));
     }
 }

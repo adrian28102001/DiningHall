@@ -1,4 +1,5 @@
-﻿using DiningHall.Helpers;
+﻿using System.Collections.Concurrent;
+using DiningHall.Helpers;
 using DiningHall.Models;
 using DiningHall.Models.Status;
 using DiningHall.Repositories.FoodRepository;
@@ -28,7 +29,7 @@ public class ApiController : ControllerBase
     }
 
     [HttpGet]
-    public Task<IList<Order>> GetOrders()
+    public Task<ConcurrentBag<Order>> GetOrders()
     {
         return _orderRepository.GetAll();
     }
@@ -41,11 +42,11 @@ public class ApiController : ControllerBase
         if (table != null)
         {
             table.TableStatus = TableStatus.IsAvailable;
-            ConsoleHelper.Print($"I received from the kitchen an order with id {order.Id.Result} for table {order.TableId}");
+            ConsoleHelper.Print($"I received from the kitchen an order with id {order.Id} for table {order.TableId}");
         }
 
         var waiter =  await _waiterRepository.GetById(order.WaiterId);
-        ConsoleHelper.Print($"Dear {waiter?.Name}, please come and take the order {order.Id.Result} for table {order.TableId}");
+        ConsoleHelper.Print($"Dear {waiter?.Name}, please come and take the order {order.Id} for table {order.TableId}");
 
         //serve order
         //get rating

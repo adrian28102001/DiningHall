@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Concurrent;
+using System.Net;
 using System.Text;
 using DiningHall.Helpers;
 using DiningHall.Models;
@@ -34,7 +35,7 @@ public class OrderService : IOrderService
                 var foodList = await _foodService.GenerateOrderFood();
                 var order = new Order
                 {
-                    Id = IdGenerator.GenerateId(),
+                    Id = await IdGenerator.GenerateId(),
                     TableId = table.Id,
                     Priority = RandomGenerator.NumberGenerator(3),
                     CreatedOnUtc = DateTime.UtcNow,
@@ -43,14 +44,14 @@ public class OrderService : IOrderService
                     MaxWait = foodList.CalculateMaximWaitingTime(_foodService),
                 };
 
-                table.OrderId = order.Id;   
+                table.OrderId = order.Id;
                 table.TableStatus = TableStatus.WaitingForWaiter;
 
                 _orderRepository.InsertOrder(order);
-                ConsoleHelper.Print($"A order with id {order.Id.Result} was generated");
+                ConsoleHelper.Print($"A order with id {order.Id} was generated");
                 var randomSleepTime = RandomGenerator.NumberGenerator(20, 40);
                 ConsoleHelper.Print($"Next order will be generated in: {randomSleepTime}");
-                await SleepGenerator.Delay(randomSleepTime);
+                // await SleepGenerator.Delay(randomSleepTime);
             }
             else
             {
@@ -66,6 +67,7 @@ public class OrderService : IOrderService
                     }
                 }
             }
+
             break;
         }
     }
@@ -84,7 +86,7 @@ public class OrderService : IOrderService
 
             if (response.StatusCode != HttpStatusCode.Accepted) return;
             ConsoleHelper.Print($"The order with id {order.Id} was driven in the kitchen");
-            await ChangeOrderStatus(order, OrderStatus.OrderInTheKitchen);
+            order.OrderStatus = OrderStatus.OrderInTheKitchen;
         }
         catch (Exception e)
         {
@@ -92,12 +94,17 @@ public class OrderService : IOrderService
         }
     }
 
-    public Task<IList<Order>> GetAll()
+    public Task<ConcurrentBag<Order>> GetAll()
     {
         return _orderRepository.GetAll();
     }
 
     public Task<Order?> GetById(Task<int> id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Order?> GetById(int id)
     {
         return _orderRepository.GetById(id);
     }
@@ -107,12 +114,12 @@ public class OrderService : IOrderService
         return _orderRepository.GetOrderByStatus(status);
     }
 
-    public Task<Order?> GetOrderByTableId(Task<int> id)
+    public Task<Order?> GetOrderByTableId(int id)
     {
         return _orderRepository.GetOrderByTableId(id);
     }
 
-    public Task ChangeOrderDetails(Order order, Task<int> waiterId, OrderStatus status)
+    public Task ChangeOrderDetails(Order order, int waiterId, OrderStatus status)
     {
         order.WaiterId = waiterId;
         order.OrderStatus = status;
@@ -124,5 +131,4 @@ public class OrderService : IOrderService
         order.OrderStatus = status;
         return Task.CompletedTask;
     }
-    
 }
