@@ -21,12 +21,7 @@ public class TableService : ITableService
     {
         return _tableRepository.GetAll();
     }
-
-    public Task<Table?> GetById(Task<int> id)
-    {
-        throw new NotImplementedException();
-    }
-
+    
     public Task<Table?> GetById(int id)
     {
         return _tableRepository.GetById(id);

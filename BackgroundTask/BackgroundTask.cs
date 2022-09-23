@@ -25,10 +25,5 @@ public class BackgroundTask : BackgroundService
         {
             // ignored
         }
-        finally
-        {
-            if (!stoppingToken.IsCancellationRequested)
-                Console.WriteLine("Esti prost, ceva nu ai facut cum trebuie");
-        }
     }
 }

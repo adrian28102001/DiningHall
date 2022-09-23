@@ -1,5 +1,4 @@
-﻿using DiningHall.Models;
-using DiningHall.Services.FoodService;
+﻿using DiningHall.Services.FoodService;
 using DiningHall.Services.OrderService;
 using DiningHall.Services.TableRepository;
 using DiningHall.Services.WaiterService;
@@ -38,19 +37,14 @@ public class DiningHall : IDiningHall
 
     public Task MaintainRestaurant(CancellationToken stoppingToken)
     {
-        for (var id = 0; id < Settings.NrOfWaiters; id++)
-        {
-            CreateThread(stoppingToken).Start();
-        }
-        
-        // var generateOrderThread1 = CreateThread(stoppingToken);
-        // var generateOrderThread2 = CreateThread(stoppingToken);
-        // var generateOrderThread3 = CreateThread(stoppingToken);
-        // var generateOrderThread4 = CreateThread(stoppingToken);
-        // generateOrderThread1.Start();
-        // generateOrderThread2.Start();
-        // generateOrderThread3.Start();
-        // generateOrderThread4.Start();
+        var generateOrderThread1 = CreateThread(stoppingToken);
+        var generateOrderThread2 = CreateThread(stoppingToken);
+        var generateOrderThread3 = CreateThread(stoppingToken);
+        var generateOrderThread4 = CreateThread(stoppingToken);
+        generateOrderThread1.Start();
+        generateOrderThread2.Start();
+        generateOrderThread3.Start();
+        generateOrderThread4.Start();
 
         return Task.CompletedTask;
     }
@@ -59,8 +53,8 @@ public class DiningHall : IDiningHall
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await _orderService.GenerateOrder();
-            await _waiterService.ServeTable();
+             await _orderService.GenerateOrder();
+             await _waiterService.ServeTable();
         }
     }
 }

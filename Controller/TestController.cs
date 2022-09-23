@@ -1,11 +1,4 @@
-﻿using DiningHall.Models;
-using DiningHall.Repositories.FoodRepository;
-using DiningHall.Repositories.OrderRepository;
-using DiningHall.Repositories.TableRepository;
-using DiningHall.Repositories.WaiterRepository;
-using Microsoft.AspNetCore.Mvc;
-
-namespace DiningHall.Controller;
+﻿namespace DiningHall.Controller;
 
 public class TestController
 {

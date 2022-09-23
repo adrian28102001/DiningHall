@@ -7,4 +7,9 @@ public static class ConsoleHelper
         Console.ForegroundColor = ConsoleColor.Black;
         Console.WriteLine(message);
     }
+    public static void Print (string message, ConsoleColor consoleColor)
+    {
+        Console.ForegroundColor = consoleColor;
+        Console.WriteLine(message);
+    }
 }

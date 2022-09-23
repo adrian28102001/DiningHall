@@ -48,10 +48,10 @@ public class OrderService : IOrderService
                 table.TableStatus = TableStatus.WaitingForWaiter;
 
                 _orderRepository.InsertOrder(order);
-                ConsoleHelper.Print($"A order with id {order.Id} was generated");
-                var randomSleepTime = RandomGenerator.NumberGenerator(20, 40);
-                ConsoleHelper.Print($"Next order will be generated in: {randomSleepTime}");
-                // await SleepGenerator.Delay(randomSleepTime);
+                ConsoleHelper.Print($"A order with id {order.Id} was generated", ConsoleColor.Green);
+                var randomSleepTime = RandomGenerator.NumberGenerator(2, 4);
+                ConsoleHelper.Print($"Next order will be generated in: {randomSleepTime}", ConsoleColor.Yellow);
+                await SleepGenerator.Delay(randomSleepTime);
             }
             else
             {
@@ -61,7 +61,7 @@ public class OrderService : IOrderService
                     var order = await GetById(tableWithSmallestWaitingTime.OrderId);
                     if (order != null)
                     {
-                        ConsoleHelper.Print($"There are no free tables now, you need to wait {order.MaxWait}");
+                        ConsoleHelper.Print($"There are no free tables now, you need to wait {order.MaxWait}", ConsoleColor.DarkRed);
                         await SleepGenerator.Delay(order.MaxWait); // sleep
                         continue;
                     }
@@ -79,7 +79,7 @@ public class OrderService : IOrderService
             var serializeObject = JsonConvert.SerializeObject(order);
             var data = new StringContent(serializeObject, Encoding.UTF8, "application/json");
 
-            const string url = Settings.KitchenUrl;
+            const string url = Settings.KitchenUrl; 
             using var client = new HttpClient();
 
             var response = await client.PostAsync(url, data);

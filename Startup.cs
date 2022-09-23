@@ -25,6 +25,8 @@ public class Startup
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+        services.AddLogging(config => config.ClearProviders());
+
         
         services.AddSingleton<IWaiterRepository, WaiterRepository>();
         services.AddSingleton<ITableRepository, TableRepository>();
