@@ -1,14 +1,17 @@
 ﻿using System.Collections.Concurrent;
 using DiningHall.Models;
+using DiningHall.Repositories.GenericRepository;
 
 namespace DiningHall.Repositories.FoodRepository;
 
 public class FoodRepository : IFoodRepository
 {
     private readonly ConcurrentBag<Food> _foods;
-
+    private readonly IGenericRepository<Food> _repository;
+    
     public FoodRepository()
     {
+        _repository = new GenericRepository<Food>();
         _foods = new ConcurrentBag<Food>();
     }
 
@@ -96,14 +99,13 @@ public class FoodRepository : IFoodRepository
         return Task.CompletedTask;
     }
 
-
     public Task<ConcurrentBag<Food>> GetAll()
     {
-        return Task.FromResult(_foods);
+        return _repository.GetAll();
     }
 
     public Task<Food?> GetById(int id)
     {
-        return Task.FromResult(_foods.FirstOrDefault(food => food.Id.Equals(id)));
+        return _repository.GetById(id);
     }
 }

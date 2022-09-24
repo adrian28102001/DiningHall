@@ -1,16 +1,19 @@
 ﻿using System.Collections.Concurrent;
 using DiningHall.Models;
 using DiningHall.Models.Status;
+using DiningHall.Repositories.GenericRepository;
 
 namespace DiningHall.Repositories.TableRepository;
 
 public class TableRepository : ITableRepository
 {
     private readonly ConcurrentBag<Table> _tables;
+    private readonly IGenericRepository<Table> _repository;
 
     public TableRepository()
     {
-        _tables = new ConcurrentBag<Table>(); // set tables to max 10
+        _tables = new ConcurrentBag<Table>();
+        _repository = new GenericRepository<Table>();
     }
 
     public Task GenerateTables()
@@ -36,12 +39,12 @@ public class TableRepository : ITableRepository
 
     public Task<ConcurrentBag<Table>> GetAll()
     {
-        return Task.FromResult(_tables);
+        return _repository.GetAll();
     }
 
     public Task<Table?> GetById(int id)
     {
-        return Task.FromResult(_tables.FirstOrDefault(table => table.Id.Equals(id)));
+        return _repository.GetById(id);
     }
 
     public Task<Table?> GetTableByStatus(TableStatus status)

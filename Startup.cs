@@ -1,5 +1,6 @@
 ﻿using DiningHall.DiningHall;
 using DiningHall.Repositories.FoodRepository;
+using DiningHall.Repositories.GenericRepository;
 using DiningHall.Repositories.OrderRepository;
 using DiningHall.Repositories.TableRepository;
 using DiningHall.Repositories.WaiterRepository;
@@ -32,11 +33,13 @@ public class Startup
         services.AddSingleton<ITableRepository, TableRepository>();
         services.AddSingleton<IOrderRepository, OrderRepository>();
         services.AddSingleton<IFoodRepository, FoodRepository>();
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         services.AddSingleton<IWaiterService, WaiterService>();
         services.AddSingleton<ITableService, TableService>();
         services.AddSingleton<IOrderService, OrderService>();
         services.AddSingleton<IFoodService, FoodService>();
+        // services.AddScoped(typeof(IGenericServices<>), typeof(GenericServices<>));
 
 
         services.AddSingleton<IDiningHall, DiningHall.DiningHall>();

@@ -7,9 +7,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {
     private readonly ConcurrentBag<T> _repository;
 
-    public GenericRepository(ConcurrentBag<T> repository)
+    public GenericRepository()
     {
-        _repository = repository;
+        _repository =  new ConcurrentBag<T>();
     }
 
     public Task<ConcurrentBag<T>> GetAll()

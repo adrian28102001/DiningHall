@@ -1,15 +1,19 @@
 ﻿using System.Collections.Concurrent;
 using DiningHall.Models;
 using DiningHall.Models.Status;
+using DiningHall.Repositories.GenericRepository;
 
 namespace DiningHall.Repositories.OrderRepository;
 
 public class OrderRepository : IOrderRepository
 {
     private readonly ConcurrentBag<Order> _orders;
+    
+    private readonly IGenericRepository<Order> _repository;
 
     public OrderRepository()
     {
+        _repository = new GenericRepository<Order>();
         _orders = new ConcurrentBag<Order>();
     }
 
@@ -20,27 +24,17 @@ public class OrderRepository : IOrderRepository
 
     public Task<ConcurrentBag<Order>> GetAll()
     {
-        return Task.FromResult(_orders);
+        return _repository.GetAll();
     }
 
     public Task<Order?> GetById(int id)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<Order?> GetById(Task<int> id)
-    {
-        return Task.FromResult(_orders.FirstOrDefault(order => order.Id.Equals(id)));
+        return _repository.GetById(id);
     }
 
     public Task<Order?> GetOrderByStatus(OrderStatus status)
     {
         return Task.FromResult(_orders.FirstOrDefault(order => order.OrderStatus == status));
-    }
-
-    public Task<Order?> GetOrderByTableId(Task<int> id)
-    {
-        throw new NotImplementedException();
     }
 
     public Task<Order?> GetOrderByTableId(int id)
