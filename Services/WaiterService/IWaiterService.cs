@@ -9,4 +9,5 @@ public interface IWaiterService
     Task<Waiter?> GetById(int id);
     Task ServeTable();
     Task GenerateWaiters();
+    Task SleepWaiter();
 }

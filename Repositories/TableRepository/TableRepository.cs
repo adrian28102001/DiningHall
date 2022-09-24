@@ -13,7 +13,7 @@ public class TableRepository : ITableRepository
     public TableRepository()
     {
         _tables = new ConcurrentBag<Table>();
-        _repository = new GenericRepository<Table>();
+        _repository = new GenericRepository<Table>(_tables);
     }
 
     public Task GenerateTables()

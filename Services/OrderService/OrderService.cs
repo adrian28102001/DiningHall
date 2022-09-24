@@ -49,9 +49,6 @@ public class OrderService : IOrderService
 
                 _orderRepository.InsertOrder(order);
                 ConsoleHelper.Print($"A order with id {order.Id} was generated", ConsoleColor.Green);
-                var randomSleepTime = RandomGenerator.NumberGenerator(2, 4);
-                ConsoleHelper.Print($"Next order will be generated in: {randomSleepTime}", ConsoleColor.Yellow);
-                await SleepGenerator.Delay(randomSleepTime);
             }
             else
             {
@@ -61,7 +58,8 @@ public class OrderService : IOrderService
                     var order = await GetById(tableWithSmallestWaitingTime.OrderId);
                     if (order != null)
                     {
-                        ConsoleHelper.Print($"There are no free tables now, you need to wait {order.MaxWait}", ConsoleColor.DarkRed);
+                        ConsoleHelper.Print($"There are no free tables now, you need to wait {order.MaxWait}",
+                            ConsoleColor.DarkRed);
                         await SleepGenerator.Delay(order.MaxWait); // sleep
                         continue;
                     }
@@ -79,14 +77,16 @@ public class OrderService : IOrderService
             var serializeObject = JsonConvert.SerializeObject(order);
             var data = new StringContent(serializeObject, Encoding.UTF8, "application/json");
 
-            const string url = Settings.KitchenUrl; 
+            const string url = Settings.KitchenUrl;
             using var client = new HttpClient();
 
             var response = await client.PostAsync(url, data);
 
-            if (response.StatusCode != HttpStatusCode.Accepted) return;
-            ConsoleHelper.Print($"The order with id {order.Id} was driven in the kitchen");
-            order.OrderStatus = OrderStatus.OrderInTheKitchen;
+            if (response.StatusCode == HttpStatusCode.Accepted)
+            {
+                ConsoleHelper.Print($"The order with id {order.Id} was driven in the kitchen");
+                order.OrderStatus = OrderStatus.OrderInTheKitchen;
+            }
         }
         catch (Exception e)
         {

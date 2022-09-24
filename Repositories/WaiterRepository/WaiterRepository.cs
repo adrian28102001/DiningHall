@@ -12,7 +12,7 @@ public class WaiterRepository : IWaiterRepository
     public WaiterRepository()
     {
         _waiters = new ConcurrentBag<Waiter>();
-        _repository = new GenericRepository<Waiter>();
+        _repository = new GenericRepository<Waiter>(_waiters);
     }
 
     public Task GenerateWaiters()

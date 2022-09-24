@@ -13,8 +13,8 @@ public class OrderRepository : IOrderRepository
 
     public OrderRepository()
     {
-        _repository = new GenericRepository<Order>();
         _orders = new ConcurrentBag<Order>();
+        _repository = new GenericRepository<Order>(_orders);
     }
 
     public void InsertOrder(Order order)

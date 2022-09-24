@@ -7,12 +7,12 @@ namespace DiningHall.Repositories.FoodRepository;
 public class FoodRepository : IFoodRepository
 {
     private readonly ConcurrentBag<Food> _foods;
-    private readonly IGenericRepository<Food> _repository;
+    private readonly IGenericRepository<Food> _genericRepository;
     
     public FoodRepository()
     {
-        _repository = new GenericRepository<Food>();
         _foods = new ConcurrentBag<Food>();
+        _genericRepository = new GenericRepository<Food>(_foods);
     }
 
     public Task GenerateMenu()
@@ -101,11 +101,11 @@ public class FoodRepository : IFoodRepository
 
     public Task<ConcurrentBag<Food>> GetAll()
     {
-        return _repository.GetAll();
+        return _genericRepository.GetAll();
     }
-
+    
     public Task<Food?> GetById(int id)
     {
-        return _repository.GetById(id);
+        return _genericRepository.GetById(id);
     }
 }
