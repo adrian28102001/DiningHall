@@ -27,17 +27,6 @@ public class WaiterService : IWaiterService
         return _waiterRepository.GenerateWaiters();
     }
 
-    public async Task SleepWaiter()
-    {
-        await Task.Run(async () =>
-            {
-                var randomSleepTime = RandomGenerator.NumberGenerator(15, 30);
-                ConsoleHelper.Print($"Waiter will sleep for: {randomSleepTime}", ConsoleColor.Yellow);
-                await SleepGenerator.Delay(randomSleepTime);
-            }
-        );
-    }
-
     public Task<ConcurrentBag<Waiter>> GetAll()
     {
         return _waiterRepository.GetAll();
@@ -79,20 +68,25 @@ public class WaiterService : IWaiterService
                         ConsoleColor.Blue);
                     table.TableStatus = TableStatus.WaitingForOrderToBeServed;
 
-                    var sleepTime = RandomGenerator.NumberGenerator(10);
+                    var sleepTime = RandomGenerator.NumberGenerator(20, 40);
                     ConsoleHelper.Print($"I am waiter {waiter.Name}. I will rest for {sleepTime} seconds",
                         ConsoleColor.Yellow);
+                    await SleepGenerator.Delay(sleepTime);
                     ConsoleHelper.Print($"Waiter {waiter.Name} is ready for a new order", ConsoleColor.Green);
                     waiter.IsFree = true;
                 }
             }
             else
             {
+                var sleepTime = RandomGenerator.NumberGenerator(20, 40);
+                await SleepGenerator.Delay(sleepTime);
                 ConsoleHelper.Print("There are no tables that need an waiter now", ConsoleColor.Red);
             }
         }
         else
         {
+            var sleepTime = RandomGenerator.NumberGenerator(20, 40);
+            await SleepGenerator.Delay(sleepTime);
             ConsoleHelper.Print("There are no free waiters now", ConsoleColor.Red);
         }
     }

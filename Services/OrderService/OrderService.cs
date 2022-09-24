@@ -26,47 +26,44 @@ public class OrderService : IOrderService
 
     public async Task GenerateOrder()
     {
-        while (true)
+        var table = await _tableService.GetTableByStatus(TableStatus.IsAvailable);
+
+        if (table != null)
         {
-            var table = await _tableService.GetTableByStatus(TableStatus.IsAvailable);
-
-            if (table != null)
+            var foodList = await _foodService.GenerateOrderFood();
+            var order = new Order
             {
-                var foodList = await _foodService.GenerateOrderFood();
-                var order = new Order
-                {
-                    Id = await IdGenerator.GenerateId(),
-                    TableId = table.Id,
-                    Priority = RandomGenerator.NumberGenerator(3),
-                    CreatedOnUtc = DateTime.UtcNow,
-                    OrderIsComplete = false,
-                    FoodList = foodList,
-                    MaxWait = foodList.CalculateMaximWaitingTime(_foodService),
-                };
+                Id = await IdGenerator.GenerateId(),
+                TableId = table.Id,
+                Priority = RandomGenerator.NumberGenerator(3),
+                CreatedOnUtc = DateTime.UtcNow,
+                OrderIsComplete = false,
+                FoodList = foodList,
+                MaxWait = foodList.CalculateMaximWaitingTime(_foodService),
+            };
 
-                table.OrderId = order.Id;
-                table.TableStatus = TableStatus.WaitingForWaiter;
+            table.OrderId = order.Id;
+            table.TableStatus = TableStatus.WaitingForWaiter;
 
-                _orderRepository.InsertOrder(order);
-                ConsoleHelper.Print($"A order with id {order.Id} was generated", ConsoleColor.Green);
-            }
-            else
+            _orderRepository.InsertOrder(order);
+            ConsoleHelper.Print($"A order with id {order.Id} was generated", ConsoleColor.Green);
+            var sleepingTime = RandomGenerator.NumberGenerator(10, 20);
+            ConsoleHelper.Print($"The next order in: {sleepingTime} seconds", ConsoleColor.Yellow);
+            await SleepGenerator.Delay(sleepingTime);
+        }
+        else
+        {
+            var tableWithSmallestWaitingTime = await _tableService.GetTableWithSmallestWaitingTime();
+            if (tableWithSmallestWaitingTime != null)
             {
-                var tableWithSmallestWaitingTime = await _tableService.GetTableWithSmallestWaitingTime();
-                if (tableWithSmallestWaitingTime != null)
+                var order = await GetById(tableWithSmallestWaitingTime.OrderId);
+                if (order != null)
                 {
-                    var order = await GetById(tableWithSmallestWaitingTime.OrderId);
-                    if (order != null)
-                    {
-                        ConsoleHelper.Print($"There are no free tables now, you need to wait {order.MaxWait}",
-                            ConsoleColor.DarkRed);
-                        await SleepGenerator.Delay(order.MaxWait); // sleep
-                        continue;
-                    }
+                    ConsoleHelper.Print($"There are no free tables now, you need to wait {order.MaxWait}",
+                        ConsoleColor.DarkRed); 
+                    await SleepGenerator.Delay(order.MaxWait);
                 }
             }
-
-            break;
         }
     }
 

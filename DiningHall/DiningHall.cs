@@ -51,22 +51,20 @@ public class DiningHall : IDiningHall
         await Task.WhenAll(taskList);
     }
 
-    private static async Task ServeTable(CancellationToken stoppingToken)
-    {
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            await _waiterService.ServeTable();
-            await _waiterService.SleepWaiter();
-        } 
-    }
     private static async Task GenerateOrders(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
             await _orderService.GenerateOrder();
-            var randomSleepTime = RandomGenerator.NumberGenerator(10, 20);
-            ConsoleHelper.Print($"Next order will be generated in: {randomSleepTime}", ConsoleColor.Yellow);
-            await SleepGenerator.Delay(randomSleepTime);
         }
     }
+    
+    private static async Task ServeTable(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            await _waiterService.ServeTable(); ;
+        } 
+    }
+   
 }
