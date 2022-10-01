@@ -1,6 +1,4 @@
-﻿using DiningHall.Helpers;
-using DiningHall.Models;
-using DiningHall.Services.FoodService;
+﻿using DiningHall.Services.FoodService;
 using DiningHall.Services.OrderService;
 using DiningHall.Services.TableRepository;
 using DiningHall.Services.WaiterService;
@@ -39,15 +37,17 @@ public class DiningHall : IDiningHall
 
     public async Task MaintainRestaurant(CancellationToken stoppingToken)
     {
+        var orderThread = Task.Run(() => GenerateOrders(stoppingToken), stoppingToken);
+        var waiter1 = Task.Run(() => ServeTable(stoppingToken), stoppingToken);
+        var waiter2 = Task.Run(() => ServeTable(stoppingToken), stoppingToken);
+        var waiter3 = Task.Run(() => ServeTable(stoppingToken), stoppingToken);
+        var waiter4 = Task.Run(() => ServeTable(stoppingToken), stoppingToken);
+
         var taskList = new List<Task>
         {
-            Task.Run(() => GenerateOrders(stoppingToken), stoppingToken),
-            Task.Run(() => ServeTable(stoppingToken), stoppingToken),
-            Task.Run(() => ServeTable(stoppingToken), stoppingToken),
-            Task.Run(() => ServeTable(stoppingToken), stoppingToken),
-            Task.Run(() => ServeTable(stoppingToken), stoppingToken)
+            orderThread, waiter1, waiter2, waiter3, waiter4
         };
-
+        
         await Task.WhenAll(taskList);
     }
 
@@ -58,13 +58,12 @@ public class DiningHall : IDiningHall
             await _orderService.GenerateOrder();
         }
     }
-    
+
     private static async Task ServeTable(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await _waiterService.ServeTable(); ;
-        } 
+            await _waiterService.ServeTable();
+        }
     }
-   
 }

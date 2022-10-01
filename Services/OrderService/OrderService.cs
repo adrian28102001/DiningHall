@@ -35,7 +35,7 @@ public class OrderService : IOrderService
             {
                 Id = await IdGenerator.GenerateId(),
                 TableId = table.Id,
-                Priority = RandomGenerator.NumberGenerator(3),
+                Priority = RandomGenerator.NumberGenerator(5),
                 CreatedOnUtc = DateTime.UtcNow,
                 OrderIsComplete = false,
                 FoodList = foodList,
@@ -47,7 +47,7 @@ public class OrderService : IOrderService
 
             _orderRepository.InsertOrder(order);
             ConsoleHelper.Print($"A order with id {order.Id} was generated", ConsoleColor.Green);
-            var sleepingTime = RandomGenerator.NumberGenerator(10, 20);
+            var sleepingTime = RandomGenerator.NumberGenerator(10, 15);
             ConsoleHelper.Print($"The next order in: {sleepingTime} seconds", ConsoleColor.Yellow);
             await SleepGenerator.Delay(sleepingTime);
         }
@@ -60,7 +60,7 @@ public class OrderService : IOrderService
                 if (order != null)
                 {
                     ConsoleHelper.Print($"There are no free tables now, you need to wait {order.MaxWait}",
-                        ConsoleColor.DarkRed); 
+                        ConsoleColor.DarkRed);
                     await SleepGenerator.Delay(order.MaxWait);
                 }
             }
@@ -69,26 +69,28 @@ public class OrderService : IOrderService
 
     public async Task SendOrder(Order order)
     {
-        try
-        {
-            var serializeObject = JsonConvert.SerializeObject(order);
-            var data = new StringContent(serializeObject, Encoding.UTF8, "application/json");
-
-            const string url = Settings.KitchenUrl;
-            using var client = new HttpClient();
-
-            var response = await client.PostAsync(url, data);
-
-            if (response.StatusCode == HttpStatusCode.Accepted)
+        await Task.Run(async () => { 
+            try
             {
-                ConsoleHelper.Print($"The order with id {order.Id} was driven in the kitchen");
-                order.OrderStatus = OrderStatus.OrderInTheKitchen;
+                var serializeObject = JsonConvert.SerializeObject(order);
+                var data = new StringContent(serializeObject, Encoding.UTF8, "application/json");
+
+                const string url = Settings.KitchenUrl;
+                using var client = new HttpClient();
+
+                var response = await client.PostAsync(url, data);
+
+                if (response.StatusCode == HttpStatusCode.Accepted)
+                {
+                    ConsoleHelper.Print($"The order with id {order.Id} was driven in the kitchen");
+                    order.OrderStatus = OrderStatus.OrderInTheKitchen;
+                }
             }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Failed to send order {order.Id}");
-        }
+            catch (Exception e)
+            {
+                ConsoleHelper.Print($"Failed to send order {order.Id}", ConsoleColor.Red);
+            }
+        });
     }
 
     public Task<ConcurrentBag<Order>> GetAll()
@@ -96,12 +98,7 @@ public class OrderService : IOrderService
         return _orderRepository.GetAll();
     }
 
-    public Task<Order?> GetById(Task<int> id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Order?> GetById(int id)
+    private Task<Order?> GetById(int id)
     {
         return _orderRepository.GetById(id);
     }
@@ -114,18 +111,5 @@ public class OrderService : IOrderService
     public Task<Order?> GetOrderByTableId(int id)
     {
         return _orderRepository.GetOrderByTableId(id);
-    }
-
-    public Task ChangeOrderDetails(Order order, int waiterId, OrderStatus status)
-    {
-        order.WaiterId = waiterId;
-        order.OrderStatus = status;
-        return Task.CompletedTask;
-    }
-
-    private static Task ChangeOrderStatus(Order order, OrderStatus status)
-    {
-        order.OrderStatus = status;
-        return Task.CompletedTask;
     }
 }

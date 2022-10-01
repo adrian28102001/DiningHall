@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using DiningHall.Helpers;
+﻿using DiningHall.Helpers;
 using DiningHall.Models;
 using DiningHall.Repositories.FoodRepository;
 
@@ -14,20 +13,26 @@ public class FoodService : IFoodService
         _foodRepository = foodRepository;
     }
 
-    public Task<ConcurrentBag<int>> GenerateOrderFood()
+    public Task<List<int>> GenerateOrderFood()
     {
         var size = RandomGenerator.NumberGenerator(10);
-        var listOfFood = new ConcurrentBag<int>();
+        var listOfFood = new List<int>();
 
         for (var id = 0; id < size; id++)
         {
-            listOfFood.Add(RandomGenerator.NumberGenerator(13));
+            var randomNumber = RandomGenerator.NumberGenerator(13);
+            while (listOfFood.Contains(randomNumber))
+            {
+                randomNumber = RandomGenerator.NumberGenerator(13);
+            }
+
+            listOfFood.Add(randomNumber);
         }
 
         return Task.FromResult(listOfFood);
     }
 
-    public Task<ConcurrentBag<Food>> GetAll()
+    public Task<IList<Food>> GetAll()
     {
         return _foodRepository.GetAll();
     }
