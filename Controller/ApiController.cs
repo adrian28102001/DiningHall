@@ -35,8 +35,9 @@ public class ApiController : ControllerBase
     }
 
     [HttpPost]
-    public async Task SendOrder([FromBody] Order order)
+    public async Task GetOrderFromKitchen([FromBody] Order order)
     {
+        var servedTime = order.UpdatedOnUtc - order.CreatedOnUtc;
         order.OrderStatus = OrderStatus.OrderCooked;
         var table = await _tableRepository.GetById(order.TableId);
         if (table != null)
@@ -44,9 +45,29 @@ public class ApiController : ControllerBase
             table.TableStatus = TableStatus.IsAvailable;
             ConsoleHelper.Print($"I received from the kitchen an order with id {order.Id} for table {order.TableId}");
         }
+        
+        ConsoleHelper.Print($"This order with maxim waiting time {order.MaxWait} was served in {servedTime}");
 
-        var waiter =  await _waiterRepository.GetById(order.WaiterId);
-        ConsoleHelper.Print($"Dear {waiter?.Name}, please come and take the order {order.Id} for table {order.TableId}");
+        if (servedTime.Duration().Minutes < order.MaxWait)
+        {
+            Console.WriteLine("Rating 5");
+        }
+        else if (servedTime.Duration().Minutes < order.MaxWait * 1.1)
+        {
+            Console.WriteLine("Rating 4");
+        }
+        else if (servedTime.Duration().Minutes < order.MaxWait * 1.2)
+        {
+            Console.WriteLine("Rating 3");
+        }
+        else if (servedTime.Duration().Minutes < order.MaxWait * 1.3)
+        {
+            Console.WriteLine("Rating 2");
+        }
+        else if (servedTime.Duration().Minutes < order.MaxWait * 1.4)
+        {
+            Console.WriteLine("Rating 1");
+        }
 
         //serve order
         //get rating

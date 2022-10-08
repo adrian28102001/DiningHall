@@ -65,7 +65,7 @@ public class WaiterService : IWaiterService
                     ConsoleHelper.Print(
                         $"I am {waiter.Name} and I drive order {order.Id} in the kitchen from table {table.Id}",
                         ConsoleColor.Blue);
-                    _orderService.SendOrder(order);
+                    await _orderService.SendOrder(order);
 
                     table.TableStatus = TableStatus.WaitingForOrderToBeServed;
 
@@ -74,7 +74,7 @@ public class WaiterService : IWaiterService
             }
             else
             {
-                var sleepTime = RandomGenerator.NumberGenerator(20, 30);
+                var sleepTime = RandomGenerator.NumberGenerator(5, 10);
                 ConsoleHelper.Print(
                     $"There are no tables that need an waiter now, this thread will try again in {sleepTime} seconds",
                     ConsoleColor.Red);

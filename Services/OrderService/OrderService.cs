@@ -36,7 +36,7 @@ public class OrderService : IOrderService
                 Id = await IdGenerator.GenerateId(),
                 TableId = table.Id,
                 Priority = RandomGenerator.NumberGenerator(5),
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.Now,
                 OrderIsComplete = false,
                 FoodList = foodList,
                 MaxWait = foodList.CalculateMaximWaitingTime(_foodService),
@@ -47,7 +47,7 @@ public class OrderService : IOrderService
 
             _orderRepository.InsertOrder(order);
             ConsoleHelper.Print($"A order with id {order.Id} was generated", ConsoleColor.Green);
-            var sleepingTime = RandomGenerator.NumberGenerator(10, 15);
+            var sleepingTime = RandomGenerator.NumberGenerator(5, 10);
             ConsoleHelper.Print($"The next order in: {sleepingTime} seconds", ConsoleColor.Yellow);
             await SleepGenerator.Delay(sleepingTime);
         }

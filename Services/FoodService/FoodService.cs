@@ -15,7 +15,7 @@ public class FoodService : IFoodService
 
     public Task<List<int>> GenerateOrderFood()
     {
-        var size = RandomGenerator.NumberGenerator(10);
+        var size = RandomGenerator.NumberGenerator(5);
         var listOfFood = new List<int>();
 
         for (var id = 0; id < size; id++)
