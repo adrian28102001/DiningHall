@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using DiningHall.Helpers;
 using DiningHall.Models;
+using DiningHall.Models.SettingsFolder;
 using DiningHall.Models.Status;
 using DiningHall.Repositories.OrderRepository;
 using DiningHall.Services.FoodService;
@@ -46,9 +47,10 @@ public class OrderService : IOrderService
             table.TableStatus = TableStatus.WaitingForWaiter;
 
             _orderRepository.InsertOrder(order);
-            ConsoleHelper.Print($"A order with id {order.Id} was generated", ConsoleColor.Green);
-            var sleepingTime = RandomGenerator.NumberGenerator(5, 10);
-            ConsoleHelper.Print($"The next order in: {sleepingTime} seconds", ConsoleColor.Yellow);
+            var sleepingTime = RandomGenerator.NumberGenerator(SleepingSetting.GenerateOrderOnceInMin,
+                SleepingSetting.GenerateOrderOnceInMax);
+            ConsoleHelper.Print($"A order with id {order.Id} was generated," +
+                                $"the next order in: {sleepingTime} seconds", ConsoleColor.Yellow);
             await SleepGenerator.Delay(sleepingTime);
         }
         else
@@ -59,8 +61,6 @@ public class OrderService : IOrderService
                 var order = await GetById(tableWithSmallestWaitingTime.OrderId);
                 if (order != null)
                 {
-                    ConsoleHelper.Print($"There are no free tables now, you need to wait {order.MaxWait}",
-                        ConsoleColor.DarkRed);
                     await SleepGenerator.Delay(order.MaxWait);
                 }
             }
@@ -69,7 +69,8 @@ public class OrderService : IOrderService
 
     public async Task SendOrder(Order order)
     {
-        await Task.Run(async () => { 
+        await Task.Run(async () =>
+        {
             try
             {
                 var serializeObject = JsonConvert.SerializeObject(order);

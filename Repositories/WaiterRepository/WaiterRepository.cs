@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using DiningHall.Models;
+using DiningHall.Models.SettingsFolder;
 using DiningHall.Repositories.GenericRepository;
 
 namespace DiningHall.Repositories.WaiterRepository;

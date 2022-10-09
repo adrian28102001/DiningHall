@@ -1,5 +1,6 @@
 ﻿using DiningHall.Helpers;
 using DiningHall.Models;
+using DiningHall.Models.SettingsFolder;
 using DiningHall.Repositories.FoodRepository;
 
 namespace DiningHall.Services.FoodService;
@@ -15,7 +16,7 @@ public class FoodService : IFoodService
 
     public Task<List<int>> GenerateOrderFood()
     {
-        var size = RandomGenerator.NumberGenerator(5);
+        var size = RandomGenerator.NumberGenerator(Settings.FoodListSize);
         var listOfFood = new List<int>();
 
         for (var id = 0; id < size; id++)

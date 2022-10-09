@@ -17,6 +17,6 @@ public static class MaxWaitingTimeHelper
             }
         }
 
-        return (int) (maxWaitingTime * 1.3);
+        return (int) Math.Ceiling(maxWaitingTime * 1.3);
     }
 }

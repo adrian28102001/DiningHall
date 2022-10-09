@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using DiningHall.Helpers;
 using DiningHall.Models;
+using DiningHall.Models.SettingsFolder;
 using DiningHall.Models.Status;
 using DiningHall.Repositories.TableRepository;
 using DiningHall.Repositories.WaiterRepository;
@@ -13,8 +14,7 @@ public class WaiterService : IWaiterService
     private readonly IWaiterRepository _waiterRepository;
     private readonly ITableRepository _tableRepository;
     private readonly IOrderService _orderService;
-    private object _lock = new object();  
-    
+
     public WaiterService(IOrderService orderService, IWaiterRepository waiterRepository,
         ITableRepository tableRepository)
     {
@@ -68,22 +68,21 @@ public class WaiterService : IWaiterService
                     await _orderService.SendOrder(order);
 
                     table.TableStatus = TableStatus.WaitingForOrderToBeServed;
-
                     await SleepWaiter(waiter);
                 }
             }
             else
             {
-                var sleepTime = RandomGenerator.NumberGenerator(5, 10);
-                ConsoleHelper.Print(
-                    $"There are no tables that need an waiter now, this thread will try again in {sleepTime} seconds",
-                    ConsoleColor.Red);
+                var sleepTime = RandomGenerator.NumberGenerator(10);
+                // ConsoleHelper.Print(
+                //     $"There are no tables that need an waiter now, this thread will try again in {sleepTime} seconds",
+                //     ConsoleColor.Red);
                 await SleepGenerator.Delay(sleepTime);
             }
         }
         else
         {
-            var sleepTime = RandomGenerator.NumberGenerator(5, 10);
+            var sleepTime = RandomGenerator.NumberGenerator(SleepingSetting.NoFreeWaitersMin, SleepingSetting.NoFreeWaitersMax);
             ConsoleHelper.Print("There are no free waiters now", ConsoleColor.Red);
             await SleepGenerator.Delay(sleepTime);
         }
@@ -91,7 +90,7 @@ public class WaiterService : IWaiterService
 
     private static async Task SleepWaiter(Waiter waiter)
     {
-        var sleepTime = RandomGenerator.NumberGenerator(20, 40);
+        var sleepTime = RandomGenerator.NumberGenerator(SleepingSetting.RestWaiterForMin, SleepingSetting.RestWaiterForMax);
         ConsoleHelper.Print($"I am waiter {waiter.Name}. I will rest for {sleepTime} seconds", ConsoleColor.Yellow);
         await SleepGenerator.Delay(sleepTime);
         ConsoleHelper.Print($"{waiter.Name} is ready for a new order", ConsoleColor.Green);
