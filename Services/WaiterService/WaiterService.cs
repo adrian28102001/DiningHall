@@ -14,6 +14,7 @@ public class WaiterService : IWaiterService
     private readonly IWaiterRepository _waiterRepository;
     private readonly ITableRepository _tableRepository;
     private readonly IOrderService _orderService;
+    private readonly SemaphoreSlim _semaphore;
 
     public WaiterService(IOrderService orderService, IWaiterRepository waiterRepository,
         ITableRepository tableRepository)
@@ -21,6 +22,7 @@ public class WaiterService : IWaiterService
         _orderService = orderService;
         _waiterRepository = waiterRepository;
         _tableRepository = tableRepository;
+        _semaphore = new SemaphoreSlim(1);
     }
 
     public Task GenerateWaiters()
@@ -46,6 +48,7 @@ public class WaiterService : IWaiterService
     public async Task ServeTable()
     {
         var waiter = await GetFreeWaiter();
+        _semaphore.Release();
 
         if (waiter != null)
         {

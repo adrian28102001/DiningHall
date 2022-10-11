@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using DiningHall.Helpers;
+﻿using DiningHall.Helpers;
 using DiningHall.Models;
 using DiningHall.Models.Status;
 using DiningHall.Repositories.TableRepository;
@@ -12,10 +11,11 @@ namespace DiningHall.Controller;
 public class ApiController : ControllerBase
 {
     private readonly ITableRepository _tableRepository;
-
+    private readonly Semaphore _semaphore;
     public ApiController(ITableRepository tableRepository)
     {
         _tableRepository = tableRepository;
+        _semaphore = new Semaphore(1,1);
     }
 
     [HttpPost]
@@ -26,9 +26,10 @@ public class ApiController : ControllerBase
         if (table != null)
         {
             table.TableStatus = TableStatus.IsAvailable;
-            ConsoleHelper.Print($"I received from the kitchen an order with id {order.Id} for table {order.TableId}");
+            ConsoleHelper.Print($"I received from the kitchen an order with id {order.Id} for table {order.TableId}", ConsoleColor.Cyan);
+            _semaphore.WaitOne();
+            RatingHelper.GetRating(order);
+            _semaphore.Release();
         }
-
-        RatingHelper.GetRating(order);
     }
 }

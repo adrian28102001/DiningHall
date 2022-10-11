@@ -8,7 +8,7 @@ public static class RatingHelper
     
     public static void GetRating(Order order)
     {
-        var servedTime = Math.Abs(order.CreatedOnUtc.Subtract(order.UpdatedOnUtc).TotalSeconds);
+        var servedTime = Math.Abs(order.UpdatedOnUtc.Subtract(order.CreatedOnUtc).TotalSeconds);
 
         if (servedTime < order.MaxWait)
         {
@@ -30,8 +30,8 @@ public static class RatingHelper
         {
             Rating.Add(1);
         }
-        
-        ConsoleHelper.Print($"Rating for {Rating.Count} is :{Rating.Sum() / Rating.Count}", ConsoleColor.Magenta);
+        ConsoleHelper.Print($"Order with Id: {order.Id} was expected in {order.MaxWait} but come in {servedTime}");
+        ConsoleHelper.Print($"Rating for {Rating.Count} is : {Rating.Sum() / Rating.Count}", ConsoleColor.Magenta);
     }
     
 }
